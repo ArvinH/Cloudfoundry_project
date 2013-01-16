@@ -87,7 +87,7 @@ public enum ServiceManager implements CloudFoundryServices {
 						.append("type", "database")
 						.append("count", 1)
 						.append("info",
-								new BasicDBObject("x", 203).append("y", 102));
+								new BasicDBObject("x", 201).append("y", 102));
 				collection.insert(doc);
 				DBObject myDoc = collection.findOne();
 				System.out.println(myDoc);
