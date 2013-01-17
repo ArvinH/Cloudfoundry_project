@@ -48,7 +48,7 @@ public enum ServiceManager implements CloudFoundryServices {
 		String hostname = NULL_STRING;
 		String dbname = NULL_STRING;
 		String username = NULL_STRING;
-		String password = NULL_STRING;
+		char[] password = null;
 		String port = NULL_STRING;
 
 		if (vcap_services != null && vcap_services.length() > 0) {
@@ -64,7 +64,7 @@ public enum ServiceManager implements CloudFoundryServices {
 					dbname = credentials.get("name").toString();
 					hostname = credentials.get("hostname").toString();
 					username = credentials.get("username").toString();
-					password = credentials.get("password").toString();
+					password = credentials.get("password").toString().toCharArray();
 					port = credentials.get("port").toString();
 
 				} catch (IOException e) {
@@ -82,6 +82,7 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println(mongo.getVersion());
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 				DB db = mongo.getDB(dbname);
+				db.authenticate(username, password);
 				DBCollection collection = db.getCollection("Test");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
@@ -93,7 +94,7 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println(myDoc);
 				return collection;
 			} catch (Exception e) {
-
+				System.out.println(e);
 			}
 		} else {
 
