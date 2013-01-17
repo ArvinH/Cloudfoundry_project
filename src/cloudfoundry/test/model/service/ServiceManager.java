@@ -77,7 +77,7 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println("port : " + port);
 				System.out.println("user : " + username);
 				System.out.println("password : " + password);
-				
+				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 				Mongo mongo = new Mongo(hostname, Integer.parseInt(port));
 				System.out.println(mongo.getVersion());
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
