@@ -12,6 +12,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 
 //import net.sf.json.JSONArray;
 //import net.sf.json.JSONObject;
@@ -48,7 +49,7 @@ public enum ServiceManager implements CloudFoundryServices {
 		String hostname = NULL_STRING;
 		String dbname = NULL_STRING;
 		String username = NULL_STRING;
-		char[] password = null;
+		String password = NULL_STRING;
 		String port = NULL_STRING;
 
 		if (vcap_services != null && vcap_services.length() > 0) {
@@ -64,7 +65,7 @@ public enum ServiceManager implements CloudFoundryServices {
 					dbname = credentials.get("name").toString();
 					hostname = credentials.get("hostname").toString();
 					username = credentials.get("username").toString();
-					password = credentials.get("password").toString().toCharArray();
+					password = credentials.get("password").toString();
 					port = credentials.get("port").toString();
 
 				} catch (IOException e) {
@@ -79,10 +80,9 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println("password : " + password);
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 				Mongo mongo = new Mongo(hostname, Integer.parseInt(port));
-				System.out.println(mongo.getVersion());
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 				DB db = mongo.getDB(dbname);
-				db.authenticate(username, password);
+				db.authenticate(username, password.toCharArray());
 				DBCollection collection = db.getCollection("Test");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
@@ -93,15 +93,19 @@ public enum ServiceManager implements CloudFoundryServices {
 				DBObject myDoc = collection.findOne();
 				System.out.println(myDoc);
 				return collection;
-			} catch (Exception e) {
-				System.out.println(e);
-			}
+			}  catch (UnknownHostException e) {  
+	            e.printStackTrace();  
+	        } catch (MongoException e) {  
+	            e.printStackTrace();  
+	        }  
 		} else {
 
 			Mongo mongo;
 			try {
-				mongo = new Mongo("localhost", 27017);
+				mongo = new Mongo("192.168.1.172", 25004);
 				DB db = mongo.getDB("test");
+				boolean auth = db.authenticate("9cde9a81-e1e1-4bbd-ab16-391726f08e08", "5c572b89-e743-4396-a04c-b706dbf6e718".toCharArray());
+				System.out.println(auth);
 				DBCollection collection = db.getCollection("cloudfoundry");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
@@ -112,10 +116,11 @@ public enum ServiceManager implements CloudFoundryServices {
 				DBObject myDoc = collection.findOne();
 				System.out.println(myDoc);
 				return collection;
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			}  catch (UnknownHostException e) {  
+	            e.printStackTrace();  
+	        } catch (MongoException e) {  
+	            e.printStackTrace();  
+	        }  
 
 		}
 
