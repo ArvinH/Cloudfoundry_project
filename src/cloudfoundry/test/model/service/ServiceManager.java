@@ -79,11 +79,12 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println("user : " + username);
 				System.out.println("password : " + password);
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-				Mongo mongo = new Mongo(hostname, Integer.parseInt(port));
+				Mongo mongo = new Mongo("192.168.1.160", 27017);
+				mongo.getConnector();
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-				DB db = mongo.getDB(dbname);
-				db.authenticate(username, password.toCharArray());
-				DBCollection collection = db.getCollection("Test");
+				DB db = mongo.getDB("test");
+				//db.authenticate(username, password.toCharArray());
+				DBCollection collection = db.getCollection("cloudfoundry");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
 						.append("count", 1)
@@ -102,20 +103,22 @@ public enum ServiceManager implements CloudFoundryServices {
 
 			
 			try {
-				Mongo mongo = new Mongo("192.168.1.172", 25006);
+				Mongo mongo = new Mongo("192.168.1.172", 25003);
+				mongo.getConnector();
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 				boolean auth = mongo.getDB("a205f946-c898-4e5f-9bf5-32246223322c").authenticate("512a094e-1173-4b26-9a78-f76746527be8", "25cdcd7f-77e3-47ff-af3f-92eceb73e71c".toCharArray());
 				System.out.println(auth);
-				DB db = mongo.getDB("a205f946-c898-4e5f-9bf5-32246223322c");
+				DB db = mongo.getDB("test");
 				DBCollection collection = db.getCollection("cloudfoundry");
-				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
+/*				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
 						.append("count", 1)
 						.append("info",
 								new BasicDBObject("x", 203).append("y", 102));
 				collection.insert(doc);
 				DBObject myDoc = collection.findOne();
-				System.out.println(myDoc);
+				System.out.println(myDoc); 
+				*/ 
 				return collection;
 			}  catch (UnknownHostException e) {  
 	            e.printStackTrace();  
