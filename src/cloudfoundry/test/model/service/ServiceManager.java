@@ -25,7 +25,7 @@ public enum ServiceManager implements CloudFoundryServices {
 
 	public DBCollection getInstance(int service_type) throws Exception {
 		if (service_type == Mongodb) {
-			return getMySQLConnection();
+			return getMongoDBConnection();
 		} else {
 			throw new IllegalArgumentException("Service for id " + service_type
 					+ " not found...");
@@ -42,7 +42,7 @@ public enum ServiceManager implements CloudFoundryServices {
 	 * extract the credentials.
 	 */
 
-	private DBCollection getMySQLConnection() {
+	private DBCollection getMongoDBConnection() {
 
 		String vcap_services = System.getenv("VCAP_SERVICES");
 
@@ -100,12 +100,13 @@ public enum ServiceManager implements CloudFoundryServices {
 	        }  
 		} else {
 
-			Mongo mongo;
+			
 			try {
-				mongo = new Mongo("192.168.1.172", 25004);
-				DB db = mongo.getDB("test");
-				boolean auth = db.authenticate("9cde9a81-e1e1-4bbd-ab16-391726f08e08", "5c572b89-e743-4396-a04c-b706dbf6e718".toCharArray());
+				Mongo mongo = new Mongo("192.168.1.172", 25006);
+				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+				boolean auth = mongo.getDB("a205f946-c898-4e5f-9bf5-32246223322c").authenticate("512a094e-1173-4b26-9a78-f76746527be8", "25cdcd7f-77e3-47ff-af3f-92eceb73e71c".toCharArray());
 				System.out.println(auth);
+				DB db = mongo.getDB("a205f946-c898-4e5f-9bf5-32246223322c");
 				DBCollection collection = db.getCollection("cloudfoundry");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
