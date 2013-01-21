@@ -8,19 +8,16 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-//import net.sf.json.JSONArray;
-//import net.sf.json.JSONObject;
-
 public enum ServiceManager implements CloudFoundryServices {
 
 	INSTANCE;
-
 	private static final String NULL_STRING = "";
 
 	public DBCollection getInstance(int service_type) throws Exception {
@@ -31,27 +28,15 @@ public enum ServiceManager implements CloudFoundryServices {
 					+ " not found...");
 		}
 	}
-
-	/*
-	 * This method is responsible for establishing a valid connection to the
-	 * MySQL service, using the credentials available in the environment
-	 * variable, namely "VCAP_SERVICES".
-	 * 
-	 * The content of VCAP_SERVICES environment variable is a JSON string, thus
-	 * this method uses standard interfaces from the Argo JSON parsing API to
-	 * extract the credentials.
-	 */
-
+	
 	private DBCollection getMongoDBConnection() {
-
+		
 		String vcap_services = System.getenv("VCAP_SERVICES");
-
 		String hostname = NULL_STRING;
 		String dbname = NULL_STRING;
 		String username = NULL_STRING;
 		String password = NULL_STRING;
 		String port = NULL_STRING;
-
 		if (vcap_services != null && vcap_services.length() > 0) {
 			try {
 				ObjectMapper mapper = new ObjectMapper();
@@ -72,17 +57,17 @@ public enum ServiceManager implements CloudFoundryServices {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 				System.out.println("dbname : " + dbname);
 				System.out.println("hostname : " + hostname);
 				System.out.println("port : " + port);
 				System.out.println("user : " + username);
 				System.out.println("password : " + password);
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-				Mongo mongo = new Mongo("192.168.1.160", 27017);
+				Mongo mongo = new Mongo(hostname, Integer.parseInt(port));
 				mongo.getConnector();
-				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-				DB db = mongo.getDB("test");
+				CommandResult auth = mongo.getDB(dbname).authenticateCommand(username, password.toCharArray());
+				System.out.println(auth);
+				DB db = mongo.getDB(dbname);
 				//db.authenticate(username, password.toCharArray());
 				DBCollection collection = db.getCollection("cloudfoundry");
 				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
@@ -103,14 +88,15 @@ public enum ServiceManager implements CloudFoundryServices {
 
 			
 			try {
-				Mongo mongo = new Mongo("192.168.1.172", 25003);
+				Mongo mongo = new Mongo("192.168.1.172", 25004);
 				mongo.getConnector();
 				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-				boolean auth = mongo.getDB("a205f946-c898-4e5f-9bf5-32246223322c").authenticate("512a094e-1173-4b26-9a78-f76746527be8", "25cdcd7f-77e3-47ff-af3f-92eceb73e71c".toCharArray());
+				CommandResult auth = mongo.getDB("3829864b-7a61-4bd7-be70-7627b7e044ad").authenticateCommand("ecf963e6-92e7-49d6-a3c5-0ea6ee4cf586", "cb3c03ad-8731-4d8e-ac81-c139ce2ed4c3".toCharArray());
 				System.out.println(auth);
-				DB db = mongo.getDB("test");
+				DB db = mongo.getDB("3829864b-7a61-4bd7-be70-7627b7e044ad");
 				DBCollection collection = db.getCollection("cloudfoundry");
-/*				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
+				/*
+				BasicDBObject doc = new BasicDBObject("name", "MongoDB")
 						.append("type", "database")
 						.append("count", 1)
 						.append("info",
@@ -120,14 +106,12 @@ public enum ServiceManager implements CloudFoundryServices {
 				System.out.println(myDoc); 
 				*/ 
 				return collection;
-			}  catch (UnknownHostException e) {  
+			} catch (UnknownHostException e) {  
 	            e.printStackTrace();  
 	        } catch (MongoException e) {  
 	            e.printStackTrace();  
 	        }  
-
 		}
-
 		return null;
 	}
 }
